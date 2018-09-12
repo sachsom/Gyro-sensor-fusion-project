@@ -1,0 +1,131 @@
+#include "Wire.h"
+#include "math.h"
+
+//#include "SoftwareSerial.h"
+//SoftwareSerial Bluetooth(10, 9);
+const int address = 0x68;
+int16_t acc_x, acc_y, acc_z;
+int16_t gyro_x, gyro_y, gyro_z;
+int16_t temperature;
+int avg[5];
+float avg_final;
+int count = 0;
+int index;
+float sd;
+
+void setup()
+{
+  Serial.begin(38400);
+  Wire.begin();
+  Wire.beginTransmission(address);
+  Wire.write(0x6B);
+  Wire.write(0);
+  Wire.endTransmission(true);
+}
+
+void loop()
+{
+  Wire.beginTransmission(address);
+  Wire.write(0x3B);
+  Wire.endTransmission(false);
+  Wire.requestFrom(address, 7 * 2, true);
+
+
+  
+
+  acc_x = Wire.read() << 8 | Wire.read();
+  acc_y = Wire.read() << 8 | Wire.read();
+  acc_z = Wire.read() << 8 | Wire.read();
+  temperature = Wire.read() << 8 | Wire.read();
+  gyro_x = Wire.read() << 8 | Wire.read();
+  gyro_y = Wire.read() << 8 | Wire.read();
+  gyro_z = Wire.read() << 8 | Wire.read();
+
+
+int i=0;
+for(i=4;i>=1;i--)
+{
+avg[i]=avg[i-1];
+ 
+}
+avg[0]=gyro_x;
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  // print out data
+//  if(count<6)
+//  {
+ // Serial.print("aX = "); Serial.print(acc_x);
+//  Serial.print(" | aY = "); Serial.print(acc_y);
+//  Serial.print(" | aZ = "); Serial.print(acc_z);
+//  
+ // Serial.print("gX = "); Serial.print(gyro_x);
+//  Serial.print(" | gY = "); Serial.print(gyro_y);
+//  Serial.print(" | gZ = "); Serial.print(gyro_z);
+  //Serial.println();
+//  
+//  Serial.print("avg[0]"); Serial.println(avg[0]);
+//  Serial.print("avg[1]"); Serial.println(avg[1]);
+//  Serial.print("avg[2]"); Serial.println(avg[2]);
+//  Serial.print("avg[3]"); Serial.println(avg[3]);
+//  Serial.print("avg[4]"); Serial.println(avg[4]);
+//  Serial.print("count ");Serial.println(count);
+//  Serial.print("index ");Serial.println(index);
+//  index=count%5;
+//  avg[index]=acc_x;
+//  ++count;
+//  delay(3000);
+//  }
+//  else
+//  {
+//  Serial.println("loop over");
+//  index=count%5;
+//  avg[index]=avg[index+1];
+//  count++;
+//  Serial.print("avg[0] "); Serial.println(avg[0]);
+//  Serial.print("avg[1] "); Serial.println(avg[1]);
+//  Serial.print("avg[2] "); Serial.println(avg[2]);
+//  Serial.print("avg[3] "); Serial.println(avg[3]);
+//  Serial.print("avg[4] "); Serial.println(avg[4]);
+//  Serial.print("count ");Serial.println(count);
+//  Serial.print("index ");Serial.println(index);
+//  avg_final = running_avg(avg[0], avg[1], avg[2], avg[3], avg[4]);
+//Serial.print("aX = "); Serial.println(acc_x);
+//Serial.print("avg= "); Serial.println(avg_final);
+//Serial.print("sd= ");Serial.println(sd);
+Serial.print("count = ");Serial.println(count);
+  
+if ((avg[0]-avg_final)>(5*sd))
+{
+ count++;
+ avg[0]=avg_final;
+  delay(500);
+}
+
+
+}
+
+
+
+
+float running_avg(int x1, int x2, int x3, int x4, int x5)
+{
+  float mean=((avg[0] + avg[1] + avg[2] + avg[3] + avg[4] ) / 5);
+  sd=(square((avg[0]-mean))+square((avg[1]-mean))+square((avg[2]-mean))+square((avg[3]-mean))+square((avg[4]-mean)));
+  sd=sqrt(sd)/2;
+  return (mean);
+  
+}
+
